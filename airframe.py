@@ -9,23 +9,32 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas
 
-#import values
+#################### IMPORT VALUES
+
 step = 1. / 0.1 #second number is step length (m)
 L_HAMRAC = 11.
 W_airframe = 1.35
 H_airframe = 1.8
 MTOW = 2006
-boom_distance = 0.25
-A_stringer = 150 * 10**(-6)
-t_skin = 0.006
-d_skids = 2200
-cg = 4910.807975
 lf = 4
+
+#stringer geometry
+t_str = 1.5 #mm
+b_str1 = 20 #mm
+b_str2 = 1.5*b_str1
+A_stringer = 3*b_str1*t_str + b_str2*t_str #mm2
+
+boom_distance = 0.25
+t_skin = 0.006 #m
+d_skids = 2200 #mm
+cg = 4910.807975 #mm
+
 ## assume alluminium airframe
 ve = 0.334
-kc = 4
 E = 700*10**6
+sigma_yield = 276*10**6
 
+#################### APPLIED LOADS ############################################
 
 ## CASE 1: hover
 ## Forces with their distances to the nose tip
@@ -152,6 +161,7 @@ cen_x = np.average(x_boomcoor)
 
 # calculating boom areas
 boom_area_list = []
+A_stringer = A_stringer*10**(-6)  #mm2 -> m2
 for i in range(len(x_boomcoor)):
     if i == 0:
         frac1 = (y_boomcoor[-1]-cen_y) / (y_boomcoor[i]-cen_y)
@@ -212,19 +222,36 @@ vonmises_list = []
 for i in range(len(sigma_list)):
     vonmises_list.append(np.sqrt(sigma_list[i]**2+3*tau_list[i]**2))
 
-## calculate the critical buckling stress of skin
-sigma_cr = np.pi**2 * kc * E * (t_skin/boom_distance)**2 / (12*(1-ve**2))
 
 maxsigma = max(max(sigma_list),abs(min(sigma_list)))
 maxtau = max(max(tau_list),abs(min(tau_list)))
 maxvonmises = max(max(vonmises_list),abs(min(vonmises_list)))
+##################################### BUCKLING ################################
+
+## calculate the critical buckling stress of skin
+kc = 4
+sigma_cr_sk = np.pi**2 * kc * E * (t_skin/boom_distance)**2 / (12*(1-ve**2))
+
+## calculate the critical buckling stress of stringer
+alfa = 0.8
+C1 = 0.425 # SSFS for 1 simply supported 1 free for 3 flanges
+C2 = 4.0 # SSSS simply supported both sides for 1 flange
+n = 0.6 # ????????
+
+sigma_cr_str1 =  sigma_yield* alfa * ( (C1/sigma_yield) * np.pi**2 * E * (t_str / b_str1)**2 / (12*(1-ve**2)))**(1-n)
+sigma_cr_str2 =  sigma_yield* alfa * ( (C2/sigma_yield) * np.pi**2 * E * (t_str / b_str2)**2 / (12*(1-ve**2)))**(1-n)
+sigma_cr_str = (3*sigma_cr_str1*b_str1*t_str + sigma_cr_str2*b_str2*t_str) / (3*b_str1*t_str + b_str2*t_str)
+
+
+
+
 
 ## results
 #plt.axis([-1.5,1.5,-1.5,1.5])
 #plt.plot(x_coorlist, y_coorlist)
 #plt.scatter(x_boomcoor, y_boomcoor)
 #plt.hlines(cen_y,-1,1)
-#print('max sigma:', max(sigma_list), ', max tau:', max(tau_list))
+
 output = pandas.DataFrame([maxsigma, sigma_cr, maxtau, maxvonmises,maxsigma/sigma_cr],
                           ['max sigma:','max critical buckling stress:','max tau', 'max vonmises','sigma ratio'])
                            
