@@ -242,6 +242,7 @@ sigma_cr_str1 =  sigma_yield* alfa * ( (C1/sigma_yield) * np.pi**2 * E * (t_str 
 sigma_cr_str2 =  sigma_yield* alfa * ( (C2/sigma_yield) * np.pi**2 * E * (t_str / b_str2)**2 / (12*(1-ve**2)))**(1-n)
 sigma_cr_str = (3*sigma_cr_str1*b_str1*t_str + sigma_cr_str2*b_str2*t_str) / (3*b_str1*t_str + b_str2*t_str)
 
+## calculate euler column buckling for stiffeners
 
 
 
@@ -252,8 +253,8 @@ sigma_cr_str = (3*sigma_cr_str1*b_str1*t_str + sigma_cr_str2*b_str2*t_str) / (3*
 #plt.scatter(x_boomcoor, y_boomcoor)
 #plt.hlines(cen_y,-1,1)
 
-output = pandas.DataFrame([maxsigma, sigma_cr, maxtau, maxvonmises,maxsigma/sigma_cr],
-                          ['max sigma:','max critical buckling stress:','max tau', 'max vonmises','sigma ratio'])
+#output = pandas.DataFrame([maxsigma, sigma_cr, maxtau, maxvonmises,maxsigma/sigma_cr],
+#                          ['max sigma:','max critical buckling stress:','max tau', 'max vonmises','sigma ratio'])
                            
                            
-print(output)
+#print(output)
