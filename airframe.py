@@ -206,6 +206,7 @@ q_base = 0
 q_moment = 0
 for i in range(len(x_boomcoor)):
     q_base += -(maxshear/Ixx) * boom_area_list[i] * (y_boomcoor[i] - cen_y)
+    print(boom_area_list[i],(y_boomcoor[i] - cen_y),q_base)
     if i == len(x_boomcoor)-1:
         q_moment += -q_base*(x_boomcoor[0]-x_boomcoor[i])*(x_boomcoor[i]-cen_x) +\
                     q_base*(y_boomcoor[0]-y_boomcoor[i])*(y_boomcoor[i]-cen_y)
@@ -213,7 +214,7 @@ for i in range(len(x_boomcoor)):
         q_moment += -q_base*(x_boomcoor[i+1]-x_boomcoor[i])*(x_boomcoor[i]-cen_x) +\
                     q_base*(y_boomcoor[i+1]-y_boomcoor[i])*(y_boomcoor[i]-cen_y)
     q_base_list.append(q_base)
-q_red = -q_moment / (2*A)
+q_red = -q_moment / (2*A) 
 q_tot_list = [x+q_red for x in q_base_list]
 tau_list = [x/t_sk for x in q_tot_list]
 

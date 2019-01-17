@@ -220,7 +220,6 @@ for y in y_boomcoor:
         A += A_bottom
         break
 cen_y = Ay/A
-print(cen_y)
 
 # calculating boom areas
 boom_area_list = []
@@ -259,11 +258,58 @@ for i in range(len(x_boomcoor)):
         frac1 = (y_boomcoor[i-1]-cen_y) / (y_boomcoor[i]-cen_y)
         frac2 = (y_boomcoor[i+1]-cen_y) / (y_boomcoor[i]-cen_y)
         A_boom = A_stringer + t_sk*boom_distance/6 * ((2 + frac1) + (2 + frac2))
-    print(A_boom)
     boom_area_list.append(A_boom)
 
-plt.scatter(x_boomcoor, boom_area_list)
+## calculate moment of inertia
+Ixx = 0
+Iyy = 0 
+for i in range(len(x_boomcoor)):
+    Ixx += (y_boomcoor[i]-cen_y)**2 * boom_area_list[i]
+    Iyy += (x_boomcoor[i]-cen_x)**2 * boom_area_list[i]
 
-#plt.axis([-1.5,1.5,-0.5,2])
-#plt.plot(x_coorlist, y_coorlist)
-#plt.scatter(x_boomcoor, y_boomcoor)
+## calculate bending moment
+sigma_list = []
+for i in range(len(x_boomcoor)):
+    sigma_list += [maxmoment * (y_boomcoor[i] - cen_y) / Ixx]
+
+## calculate area
+A1 = H_bottom*d_wspar
+A2 = W_airframe*(H_airframe-r_circle-H_bottom)+ (W_airframe-2*r_circle)*r_circle + 0.5*np.pi*r_circle**2
+
+## calculate shear
+## calculate shear stress
+q_base_list = []
+q_base = 0
+q_moment = 0
+for i in range(0,len(x_boomcoor)-8):
+    q_base += (maxshear/Ixx) * boom_area_list[i] * (y_boomcoor[i] - cen_y)
+    print(i, q_base)
+    q_moment += -q_base*(x_boomcoor[i+1]-x_boomcoor[i])*(x_boomcoor[i]-cen_x) +\
+                q_base*(y_boomcoor[i+1]-y_boomcoor[i])*(y_boomcoor[i]-cen_y)
+    q_base_list.append(q_base)
+
+q_base21 = (maxshear/Ixx) * boom_area_list[15] * (y_boomcoor[16] - cen_y)
+q_base13 = 
+    
+    
+
+#q_base_list = []
+#q_base = 0
+#q_moment = 0
+#print('newlist')
+#for i in range(len(x_boomcoor)-9,-1,-1):
+#    q_base += -(maxshear/Ixx) * boom_area_list[i] * (y_boomcoor[i] - cen_y)
+#    print(i, q_base)
+#    q_moment += -q_base*(x_boomcoor[i+1]-x_boomcoor[i])*(x_boomcoor[i]-cen_x) +\
+#                q_base*(y_boomcoor[i+1]-y_boomcoor[i])*(y_boomcoor[i]-cen_y)
+#    q_base_list.append(q_base)
+#q_red = -q_moment / (2*A)
+#q_tot_list = [x+q_red for x in q_base_list]
+#tau_list = [x/t_sk for x in q_tot_list]
+
+
+
+
+
+plt.axis([-1.5,1.5,-0.5,2])
+plt.scatter(x_boomcoor, y_boomcoor)
